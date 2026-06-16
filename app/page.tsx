@@ -3,8 +3,6 @@ import React, { useState } from 'react';
 
 export default function SunoVNPro() {
   const [lyrics, setLyrics] = useState('');
-  const [style, setStyle] = useState('Hợp xướng hiện đại [orchestral strings and brass swell, driving drum beat enters]');
-  const [title, setTitle] = useState('TPCTSMTN');
   const [bpm, setBpm] = useState(90);
   const [selectedVocal, setSelectedVocal] = useState('Nam');
   const [activeTab, setActiveTab] = useState('Tuỳ chỉnh');
@@ -20,16 +18,16 @@ export default function SunoVNPro() {
 
     try {
       const response = await fetch('/api/generate', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    prompt: lyrics,
-    style: style,
-    title: title,
-    bpm: bpm,
-    vocal: selectedVocal
-  }),
-});
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: lyrics,
+          style: style,
+          title: title,
+          bpm: bpm,
+          vocal: selectedVocal
+        }),
+      });
 
       const data = await response.json();
       
@@ -118,15 +116,7 @@ export default function SunoVNPro() {
         </div>
       </main>
 
-      <section className="flex-1 bg-[#0a0a0a] p-6">
-        <div className="bg-[#121212] p-4 rounded-xl border border-[#1f1f1f] flex items-start gap-4">
-          <div className="w-12 h-12 bg-orange-600 rounded flex items-center justify-center font-bold text-white">TONE</div>
-          <div>
-            <h3 className="font-bold text-white">{title}</h3>
-            <p className="text-xs text-gray-400">{style}</p>
-          </div>
-        </div>
-      </section>
+      {/* Khu vực thẻ TONE đã được xóa hoàn toàn */}
 
       <footer className="fixed bottom-0 w-full h-16 bg-[#0a0a0a] border-t border-[#1f1f1f] flex items-center px-6 justify-between">
         <div className="text-sm font-bold flex items-center gap-3">🎵 Hệ thống đã sẵn sàng</div>
