@@ -44,9 +44,10 @@ export default function SunoVNPro() {
       } else {
         throw new Error(data.message || "Lỗi từ Server AI");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Lỗi kết nối:", error);
-      setErrorMsg(error.message || "Không thể tạo nhạc, thử lại sau.");
+      const message = error instanceof Error ? error.message : "Không thể tạo nhạc, thử lại sau.";
+      setErrorMsg(message);
     } finally {
       setIsGenerating(false);
     }
