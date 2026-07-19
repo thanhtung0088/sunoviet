@@ -3,10 +3,14 @@ import React, { useState } from 'react';
 
 export default function SunoVNPro() {
   const [lyrics, setLyrics] = useState('');
+  const [style, setStyle] = useState('');
+  const [title, setTitle] = useState('');
   const [bpm, setBpm] = useState(90);
   const [selectedVocal, setSelectedVocal] = useState('Nam');
   const [activeTab, setActiveTab] = useState('Tuỳ chỉnh');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleGenerate = async () => {
     if (!lyrics) {
@@ -15,6 +19,8 @@ export default function SunoVNPro() {
     }
 
     setIsGenerating(true);
+    setErrorMsg(null);
+    setAudioUrl(null);
 
     try {
       const response = await fetch('/api/generate', {
@@ -30,14 +36,17 @@ export default function SunoVNPro() {
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
-        console.log("Thành công: Lệnh đã được gửi!", data);
+        // MusicGen trả về mảng URL (thường 1 phần tử) hoặc chuỗi URL trực tiếp
+        const url = Array.isArray(data.audioUrl) ? data.audioUrl[0] : data.audioUrl;
+        setAudioUrl(url);
       } else {
         throw new Error(data.message || "Lỗi từ Server AI");
       }
     } catch (error: any) {
       console.error("Lỗi kết nối:", error);
+      setErrorMsg(error.message || "Không thể tạo nhạc, thử lại sau.");
     } finally {
       setIsGenerating(false);
     }
@@ -118,9 +127,23 @@ export default function SunoVNPro() {
 
       {/* Khu vực thẻ TONE đã được xóa hoàn toàn */}
 
-      <footer className="fixed bottom-0 w-full h-16 bg-[#0a0a0a] border-t border-[#1f1f1f] flex items-center px-6 justify-between">
-        <div className="text-sm font-bold flex items-center gap-3">🎵 Hệ thống đã sẵn sàng</div>
-        <button className="text-xs border border-[#333] px-4 py-2 rounded-lg hover:bg-[#1a1a1a]">Tải xuống</button>
+      <footer className="fixed bottom-0 w-full h-16 bg-[#0a0a0a] border-t border-[#1f1f1f] flex items-center px-6 justify-between gap-4">
+        {errorMsg ? (
+          <div className="text-sm font-bold text-red-500">⚠️ {errorMsg}</div>
+        ) : audioUrl ? (
+          <audio controls src={audioUrl} className="h-9 max-w-md flex-1" />
+        ) : (
+          <div className="text-sm font-bold flex items-center gap-3">
+            {isGenerating ? '🎵 Đang tạo nhạc, chờ 20-30 giây...' : '🎵 Hệ thống đã sẵn sàng'}
+          </div>
+        )}
+        <a
+          href={audioUrl ?? undefined}
+          download={audioUrl ? `${title || 'sunovn-track'}.mp3` : undefined}
+          className={`text-xs border border-[#333] px-4 py-2 rounded-lg transition ${audioUrl ? 'hover:bg-[#1a1a1a]' : 'opacity-40 pointer-events-none'}`}
+        >
+          Tải xuống
+        </a>
       </footer>
     </div>
   );

@@ -7,15 +7,22 @@ const replicate = new Replicate({
 
 export async function POST(req: Request) {
   try {
-    const { prompt, style } = await req.json();
+    const { prompt, style, title, bpm } = await req.json();
 
-    // Gọi mô hình tạo nhạc trên Replicate (Ví dụ dùng MusicGen)
+    // Ghép mô tả nhạc: MusicGen chỉ hiểu mô tả phong cách/nhạc cụ bằng tiếng Anh,
+    // không tạo được giọng hát theo lời — xem ghi chú ở cuối file.
+    const musicDescription = [style, title, bpm ? `${bpm} bpm` : null]
+      .filter(Boolean)
+      .join(', ');
+
     const output = await replicate.run(
-      "meta/musicgen:7be0f12c54a8d0336d07cd454655507340051756536066265715891319207851",
+      "meta/musicgen:b05b1dff1d8c6dc63d14b0cdb42135378dcb87f6373b0d3d341ede46e59e2b38",
       {
         input: {
-          prompt_a: prompt + " " + style,
-          duration: 10
+          prompt: musicDescription || prompt,
+          model_version: "stereo-large",
+          duration: 30,
+          output_format: "mp3",
         }
       }
     );
